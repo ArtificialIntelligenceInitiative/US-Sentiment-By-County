@@ -29,7 +29,12 @@ class MyListener(StreamListener):
         try:
             # Grabs all new tweets with coordinates enabled and prints the tweet info to a .json file.
             json_data = json.loads(data)
-            #print(json_data['coordinates'])
+            text = str(json_data['text'])
+
+            a = requests.post("http://www.datasciencetoolkit.org/text2sentiment", data="{'data':" + text + "}")
+            #a = 'not'
+            print(text, "SENTIMENT: " + a.text)
+
             if json_data['coordinates']:
                 latitude, longitude = clean_coordinates(json_data)
                 print(latitude, longitude)
@@ -45,5 +50,5 @@ class MyListener(StreamListener):
         return True
 
 twitter_stream = Stream(auth, MyListener())
-twitter_stream.filter(track=['#iphonex','iphone'])
+twitter_stream.filter(track=['#Trump','Trump', "#Hillary", "Hillary" "Bernie"])
 
