@@ -3,6 +3,7 @@ import json
 from tweepy import OAuthHandler
 from tweepy import Stream
 from tweepy.streaming import StreamListener
+from http.client import IncompleteRead # Python 3
 
 import requests
 
@@ -16,6 +17,7 @@ auth = OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_secret)
 
 api = tweepy.API(auth)
+
 
 def read_counties():
     dict = {}
@@ -52,7 +54,7 @@ class MyListener(StreamListener):
 
             a = requests.post("http://www.datasciencetoolkit.org/text2sentiment", data="{'data':" + text + "}")
             sentiment = json.loads(a.text)["score"]
-            #print(text, "SENTIMENT: " + a.text , json_data['place'])
+            # print(text, "SENTIMENT: " + a.text , json_data['place'])
 
             r = 0
 
@@ -100,6 +102,17 @@ class MyListener(StreamListener):
 
 
 counties = read_counties()
-twitter_stream = Stream(auth, MyListener())
-twitter_stream.filter(track=['#Sex','Sex','puppies'])
 
+while True:
+    try:
+        # Connect/reconnect the stream
+        twitter_stream = Stream(auth, MyListener())
+        # DON'T run this approach async or you'll just create a ton of streams!
+        twitter_stream.filter(track=['NFL', '#NFL', 'Politics','Trump','#Trump','Sunday'])
+    except KeyboardInterrupt:
+        # Or however you want to exit this loop
+        twitter_stream.disconnect()
+        break
+    except:
+        # Oh well, reconnect and keep trucking
+        continue
