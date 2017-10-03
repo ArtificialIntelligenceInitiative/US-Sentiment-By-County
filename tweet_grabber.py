@@ -31,7 +31,7 @@ def read_counties():
 
 
 def write_counties(counties):
-    with open("unemployment.txt", "w+") as f:
+    with open("mapvalues.txt", "w+") as f:
         f.write("id\trate\n")
         for key, val in counties.items():
             f.write(key+"\t"+str(val[0])+"\n")

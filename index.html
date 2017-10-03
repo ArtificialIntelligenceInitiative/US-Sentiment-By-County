@@ -74,7 +74,7 @@ g.call(d3.axisBottom(x)
 
 d3.queue()
     .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-    .defer(d3.tsv, "unemployment.txt", function(d) { unemployment.set(d.id, +d.rate); })
+    .defer(d3.tsv, "mapvalues.txt", function(d) { unemployment.set(d.id, +d.rate); })
     .await(ready);
 
 function ready(error, us) {
