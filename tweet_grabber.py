@@ -26,9 +26,7 @@ def read_counties():
         for line in c:
             code = line.rstrip()
             dict[code] = (0, 0)
-
     return dict
-
 
 def write_counties(counties):
     with open("mapvalues.txt", "w+") as f:
@@ -37,10 +35,8 @@ def write_counties(counties):
             f.write(key+"\t"+str(val[0])+"\n")
 
 def clean_coordinates(tweet):
-
     longitude, latitude = (tweet["coordinates"]["coordinates"])  # extract coordinates from dictionary
     return str(latitude), str(longitude)
-
 
 def clean_place(tweet):
     longitude, latitude = (tweet["place"]["bounding_box"]["coordinates"][0][0])
@@ -60,7 +56,28 @@ def get_coordinates(json_data):
     else:
         return ""
 
+# prints tweet text, sentiment analysis
+# county code and its current sentiment analysis average
+def printFormat(text,sentiment,code,line):
+    print("Text:\t\t\t",text)
+    print("Sentiment:\t\t",sentiment)
+    print("County Code:\t",code)
+    print("(Avg, #):\t\t",line,"\n")
 
+# returns sentiment analysis on input text
+def getSentiment(text):
+    textb = TextBlob(text)
+    sentiment = 5 * float(textb.sentiment.polarity)
+    return sentiment
+
+# updates county code average on counties.txt
+def updateCounty(code,sentiment):
+    line = counties[code]
+    avg = line[0]
+    count = line[1]
+    new_avg = (avg * count + sentiment) / (count + 1)
+    counties[code] = (new_avg, count + 1)
+    write_counties(counties)
 
 class MyListener(StreamListener):
     def on_data(self, data):
@@ -69,25 +86,13 @@ class MyListener(StreamListener):
             r = get_coordinates(json_data)
 
             if r != "":
-
                 for dict in r[0]['politics']:
                     if dict['type'] == 'admin6':
-                        code = dict['code']
-                        code = code.replace('_', '')
+                        code = dict['code'].replace('_', '')
                         text = str(json_data['text'])
-                        print(text)
-                        print("\n")
-                        textb = TextBlob(text)
-                        sentiment = 5*float(textb.sentiment.polarity)
-                        print(sentiment)
-                        print("\n")
-                        line = counties[code]
-                        avg = line[0]
-                        count = line[1]
-                        new_avg = (avg * count + sentiment) / (count + 1)
-                        counties[code] = (new_avg, count + 1)
-                        print(code, line, counties[code])
-                        write_counties(counties)
+                        sentiment = getSentiment(text)
+                        updateCounty(code,sentiment)
+                        printFormat(text,sentiment,code,counties[code])
 
         except BaseException as e:
             #print("Error on_data: %s" % str(e))
