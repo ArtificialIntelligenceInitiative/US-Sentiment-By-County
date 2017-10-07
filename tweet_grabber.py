@@ -1,5 +1,7 @@
 import tweepy
 import json
+import datetime
+from datetime import timedelta
 from tweepy import OAuthHandler
 from tweepy import Stream
 from tweepy.streaming import StreamListener
@@ -78,7 +80,7 @@ def updateCounty(code,sentiment):
     new_avg = (avg * count + sentiment) / (count + 1)
     counties[code] = (new_avg, count + 1)
     write_counties(counties)
-
+'''
 class MyListener(StreamListener):
     def on_data(self, data):
         try:
@@ -104,9 +106,25 @@ class MyListener(StreamListener):
         print(status)
         return True
 
+'''
 
 counties = read_counties()
 
+query = "trump"
+
+today = datetime.datetime.now().date()
+currentTime = str(today)
+todayMinus7 = today - timedelta(days=7)
+
+page_count = 0
+for tweet in tweepy.Cursor(api.search, q=query, count=2, result_type="recent", include_entities=True, since= todayMinus7, until= today).pages():
+    print(tweet[0])
+    tweet[0]
+    page_count += 1
+    if page_count >= 5:
+        break
+
+'''
 while True:
     try:
         # Connect/reconnect the stream
@@ -120,3 +138,5 @@ while True:
     except:
         # Oh well, reconnect and keep trucking
         continue
+
+'''
