@@ -1,5 +1,7 @@
 import tweepy
 import json
+import datetime
+from datetime import timedelta
 from tweepy import OAuthHandler
 from tweepy import Stream
 from tweepy.streaming import StreamListener
@@ -79,10 +81,17 @@ def updateCounty(code,sentiment):
     counties[code] = (new_avg, count + 1)
     write_counties(counties)
 
-class MyListener(StreamListener):
-    def on_data(self, data):
+counties = read_counties()
+
+query = "trump"
+today = datetime.datetime.now().date()
+todayMinus7 = today - timedelta(days=7)
+
+page_count = 0
+for status in tweepy.Cursor(api.search, q=query, count=2, result_type="recent", lang='en', include_entities=True, since= todayMinus7, until= today).pages():
+    for s in status:
         try:
-            json_data = json.loads(data)
+            json_data = s._json
             r = get_coordinates(json_data)
 
             if r != "":
@@ -91,29 +100,13 @@ class MyListener(StreamListener):
                         code = dict['code'].replace('_', '')
                         text = str(json_data['text'])
                         sentiment = getSentiment(text)
-                        updateCounty(code,sentiment)
-                        printFormat(text,sentiment,code,counties[code])
+                        updateCounty(code, sentiment)
+                        printFormat(text, sentiment, code, counties[code])
 
         except BaseException as e:
-            #print("Error on_data: %s" % str(e))
+            # print("Error on_data: %s" % str(e))
             pass
 
-    def on_error(self, status):
-        print(status)
-        return True
-
-counties = read_counties()
-
-while True:
-    try:
-        # Connect/reconnect the stream
-        twitter_stream = Stream(auth, MyListener())
-        # DON'T run this approach async or you'll just create a ton of streams!
-        twitter_stream.filter(track=['Trump','#Trump'])
-    except KeyboardInterrupt:
-        # Or however you want to exit this loop
-        twitter_stream.disconnect()
+    page_count += 1
+    if page_count >= 40:
         break
-    except:
-        # Oh well, reconnect and keep trucking
-        continue
