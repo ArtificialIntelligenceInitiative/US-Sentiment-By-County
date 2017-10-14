@@ -107,7 +107,7 @@ while True:
         # Connect/reconnect the stream
         twitter_stream = Stream(auth, MyListener())
         # DON'T run this approach async or you'll just create a ton of streams!
-        twitter_stream.filter(track=['Trump','#Trump'])
+        twitter_stream.filter(track=['Trump', '#Trump', 'POTUS'])
     except KeyboardInterrupt:
         # Or however you want to exit this loop
         twitter_stream.disconnect()
