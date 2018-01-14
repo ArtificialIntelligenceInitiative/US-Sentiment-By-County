@@ -25,7 +25,7 @@ def read_counties():
     with open("counties.txt","r+") as c:
         for line in c:
             code = line.rstrip()
-            dict[code] = (0, 0)
+            dict[code] = (None, 0)
     return dict
 
 def write_counties(counties):
@@ -73,11 +73,14 @@ def getSentiment(text):
 # updates county code average on counties.txt
 def updateCounty(code,sentiment):
     line = counties[code]
-    avg = line[0]
-    count = line[1]
-    new_avg = (avg * count + sentiment) / (count + 1)
-    counties[code] = (new_avg, count + 1)
-    write_counties(counties)
+    if line[0] == None:
+        counties[code] = (sentiment, 1)
+    else:
+        avg = line[0]
+        count = line[1]
+        new_avg = (avg * count + sentiment) / (count + 1)
+        counties[code] = (new_avg, count + 1)
+        write_counties(counties)
 
 class MyListener(StreamListener):
     def on_data(self, data):
@@ -109,7 +112,7 @@ while True:
         # Connect/reconnect the stream
         twitter_stream = Stream(auth, MyListener())
         # DON'T run this approach async or you'll just create a ton of streams!
-        twitter_stream.filter(track=['Trump','#Trump'])
+        twitter_stream.filter(track=['trump', '#Trump'])
     except KeyboardInterrupt:
         # Or however you want to exit this loop
         twitter_stream.disconnect()
