@@ -1,4 +1,4 @@
-# tweet_grabber
+# US-Sentiment-By-County
 This project is an ongoing effort by the *Artificial Intelligence Initiative*, an organization at Texas Tech University.  
 
 The goal of this project is to gather sentiment on tweets over a given topic and display it using interactive maps. Currently, the program only works for tweets written in English and maps the sentiment to United States counties. Further efforts will focus on allowing the map type to display sentiment by state and country, and to provide more interactive features.
